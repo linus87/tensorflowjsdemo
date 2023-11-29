@@ -23,6 +23,7 @@ async function app() {
     // Get the intermediate activation of MobileNet 'conv_preds' and pass that
     // to the KNN classifier.
     const activation = net.infer(img, true);
+    console.log(activation);
 
     // Pass the intermediate activation to the classifier.
     classifier.addExample(activation, classId);
