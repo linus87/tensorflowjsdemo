@@ -4,10 +4,6 @@ This minimal example loads tfjs from a CDN, builds and trains a minimal model,
 and uses it to predict.  Edit `index.js` and load `index.html` in your
 browser to test small snippets.
 
-## Changes
-1. Modified file index.html, let it can accept input parameter from input
-2. Modified file index.js, modified the input and output.
-
 ## Run the demo
 
 1. Install the required dependencies:

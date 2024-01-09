@@ -26,8 +26,13 @@ explore the API. -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"> </script>
   </head>
   <body>
-    <h4>Tiny TFJS example<hr/></h4>
-    <div id="micro-out-div">Training...</div>
+    <h4>Tiny TFJS example: linear regression<hr/></h4>
+    <p>The real relationship between x and y is: y=2x-1.</p>
+    <div>
+      <p>Please input a value to predict <input id="inputEle" value="20" /></p>
+      <p>Predict value: <label id="predictEle" /></p>
+      <button id="confirmBtn">Predict</button>
+    </div>
     <script src="./index.js"> </script>
   </body>
 </html>

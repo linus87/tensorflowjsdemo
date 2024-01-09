@@ -35,10 +35,13 @@ async function run() {
   
     // Train the model using the data.
     await model.fit(xs, ys, {epochs: 500});
-  
+
     // Use the model to do inference on a data point the model hasn't seen.
     // Should print approximately 39.
-    document.getElementById('micro-out-div').innerText = model.predict(tf.tensor1d([20])).dataSync();
+    document.getElementById('confirmBtn').addEventListener('click', function(){
+      let inputValue = Number(document.getElementById('inputEle').value);
+      document.getElementById('predictEle').innerText = model.predict(tf.tensor1d([inputValue])).dataSync();
+    });
   }
   
   run();
