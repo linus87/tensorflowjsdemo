@@ -24,7 +24,7 @@
 async function run() {
     // Create a simple model.
     const model = tf.sequential();
-    model.add(tf.layers.dense({units: 1, inputShape: [1]}));
+    model.add(tf.layers.dense({units: 1, inputShape: [1], kernelInitializer: 'ones', useBias: true}));
   
     // Prepare the model for training: Specify the loss and the optimizer.
     model.compile({loss: 'meanSquaredError', optimizer: 'sgd'});
