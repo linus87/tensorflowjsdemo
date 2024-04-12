@@ -1,0 +1,28 @@
+<html>
+  <head>
+    <script src="tfjs@latest.js"> </script>
+  </head>
+  <body>
+    <h4>Original Image<hr/></h4>
+    <div id="original-image-div">
+      <img id="fromBlobImg" src="./cat.jpeg" alt="Original Image" />
+    </div>
+    <div>
+      <h4>tf.image.rgbToGrayscale</h4>
+      <div id="tf-grayscale-div">
+        <canvas id="tf-grayscale-canvas" src="" alt="Grayscale Image" />
+      </div>
+    </div>
+    <div>
+      <h4>custom rgbToGrayscale</h4>
+      <div id="grayscale-div">
+        <canvas id="grayscale-canvas" src="" alt="Grayscale Image" />
+      </div>
+    </div>
+    <div id="micro-out-div">
+      Open the browser devtools to see the output in the console.
+    </div>
+    <canvas id="image-canvas" width="300" height="300" style="display:none"></canvas>
+    <script src="./index.js"> </script>
+  </body>
+</html>
