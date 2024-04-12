@@ -7,15 +7,16 @@
     <h4>Original Image<hr/></h4>
     <div id="original-image-div">
       <img id="fromBlobImg" src="./cat.jpeg" alt="Original Image" />
-      <img id="toBlobImg" src="./cat.jpeg" alt="Original Image" />
+    </div>
+    <h4>Compressed Image<hr/></h4>
+    <div id="compressed-image-div">
+      <canvas id="tf-resized-canvas" width="224" height="224"></canvas>
     </div>
     <canvas id="image-canvas" width="300" height="300" style="display:none"></canvas>
-    <canvas id="filteredImg" alt="Image after filtered">  </canvas>
     <div id="micro-out-div">
       Open the browser devtools to see the output in the console.
     </div>
-    <script src="./compress-image.js"> </script>
-    <!-- <script src="./filters.js"> </script> -->
+    <script src="./grayscaleImage.js"> </script>
     <script src="./index.js"> </script>
   </body>
 </html>
