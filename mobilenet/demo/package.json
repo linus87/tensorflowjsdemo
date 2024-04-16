@@ -1,0 +1,33 @@
+{
+    "name": "tfjs-examples-mobilenet",
+    "version": "0.1.0",
+    "description": "",
+    "source": "./src/index.html",
+    "license": "Apache-2.0",
+    "private": true,
+    "engines": {
+      "node": ">=8.9.0"
+    },
+    "scripts": {
+      "clean": "rimraf dist",
+      "watch": "cross-env NODE_ENV=development parcel src/index.html --no-hmr --open",
+      "build": "cross-env NODE_ENV=production parcel build src/index.html --public-url ./",
+      "build-deps": "yarn build-model && yarn build",
+      "build-model": "cd .. && yarn && yarn build-npm"
+    },
+    "dependencies": {
+      "@tensorflow-models/mobilenet": "file:../dist",
+      "@tensorflow/tfjs-backend-cpu": "^4.17.0",
+      "@tensorflow/tfjs-backend-webgl": "^4.17.0",
+      "@tensorflow/tfjs-converter": "^4.17.0",
+      "@tensorflow/tfjs-core": "^4.17.0"
+    },
+    "devDependencies": {
+      "clang-format": "^1.8.0",
+      "cross-env": "^5.2.0",
+      "parcel-bundler": "~1.12.5"
+    },
+    "resolutions": {
+      "follow-redirects": "1.14.8"
+    }
+  }
