@@ -1,5 +1,5 @@
 {
-    "name": "handpose_keypoints",
+    "name": "handpose_keypoints_demo",
     "version": "0.0.2",
     "description": "",
     "main": "index.js",

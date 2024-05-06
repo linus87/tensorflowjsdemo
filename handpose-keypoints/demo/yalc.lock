@@ -1,0 +1,8 @@
+{
+  "version": "v1",
+  "packages": {
+    "@tensorflow-models/handpose": {
+      "signature": "81c8e31e34c2ff352bf8c875152836b6"
+    }
+  }
+}

@@ -1,3 +1,5 @@
+<html>
+  <head>
 <!-- Copyright 2020 Google LLC. All Rights Reserved.
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -9,28 +11,27 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================-->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1.0, user-scalable=no">
+  <!-- Load three.js -->
+  <script src="http://localhost:1234/tools/three.min.js"></script>
+  <!-- Load scatter-gl.js -->
+  <!-- TODO(annxingyuan): Submit a PR to scatter-gl that allows polylines to update in the render loop. -->
+  <script src="http://localhost:1234/tools/scatter-gl.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/scatter-gl@0.0.1/lib/scatter-gl.min.js"></script> -->
+  <style>
+    #canvas-wrapper {
+      position: relative;
+    }
 
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1.0, user-scalable=no">
-<!-- Load three.js -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.106.2/build/three.min.js"></script>
-<!-- Load scatter-gl.js -->
-<!-- TODO(annxingyuan): Submit a PR to scatter-gl that allows polylines to update in the render loop. -->
-<script src="https://storage.googleapis.com/learnjs-data/handtrack_staging/scatter-gl.js"></script>
-<!-- <script src="https://cdn.jsdelivr.net/npm/scatter-gl@0.0.1/lib/scatter-gl.min.js"></script> -->
-<style>
-  #canvas-wrapper {
-    position: relative;
-  }
-
-  #canvas-wrapper,
-  #scatter-gl-container {
-    display: inline-block;
-    vertical-align: top;
-  }
-</style>
-<script src="https://cdn.jsdelivr.net/npm/stats.js@0.17.0/build/stats.min.js"></script>
-
+    #canvas-wrapper,
+    #scatter-gl-container {
+      display: inline-block;
+      vertical-align: top;
+    }
+  </style>
+  <script src="http://localhost:1234/tools/stats.min.js"></script>
+</head>
 <body>
   <div id="info"></div>
   <div id="predictions"></div>
@@ -47,6 +48,13 @@ limitations under the License.
     </video>
   </div>
   <div id="scatter-gl-container"></div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.6/dat.gui.min.js"></script>
+
+  <div id="custom-operations">
+    <button id="toggle">Toggle Camera</button>
+    <button id="collect">Collect landmarks</button>
+    <button id="toJson">Convert landmarks to JSON</button>
+  </div>
+  <script src="http://localhost:1234/tools/dat.gui.min.js"></script>
   <script src="./index.js"></script>
 </body>
+</html>

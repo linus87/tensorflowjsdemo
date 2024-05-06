@@ -165,13 +165,14 @@ async function addFlagLabels() {
     document.querySelector("#info").appendChild(threadSupportLabel);
   }
 }
+
+let video;
 async function main() {
   await tf.setBackend(state.backend);
   if (!tf.env().getAsync('WASM_HAS_SIMD_SUPPORT') && state.backend == "wasm") {
     console.warn("The backend is set to WebAssembly and SIMD support is turned off.\nThis could bottleneck your performance greatly, thus to prevent this enable SIMD Support in chrome://flags");
   }
   model = await handpose.load();
-  let video;
 
   try {
     video = await loadVideo();
@@ -220,6 +221,8 @@ async function main() {
   landmarksRealTime(video);
 }
 
+let landmarks = [], isCollecting = false;
+
 const landmarksRealTime = async (video) => {
   async function frameLandmarks() {
     stats.begin();
@@ -227,6 +230,10 @@ const landmarksRealTime = async (video) => {
       video, 0, 0, videoWidth, videoHeight, 0, 0, canvas.width,
       canvas.height);
     const predictions = await model.estimateHands(video);
+
+    if (isCollecting && predictions.length > 0) {
+      landmarks.push(predictions[0].landmarks);
+    }
     
     if (predictions.length > 0) {
       const result = predictions[0].landmarks;
@@ -266,7 +273,24 @@ const landmarksRealTime = async (video) => {
   frameLandmarks();
 };
 
+main();
+
+document.getElementById("toggle").addEventListener("click", function(){
+  if (rafID) {
+    window.cancelAnimationFrame(rafID);
+    rafID = null;
+  } else {
+    landmarksRealTime(video);
+  }
+});
+
+document.getElementById("collect").addEventListener("click", function(){
+  isCollecting = !isCollecting;
+});
+
+document.getElementById("toJson").addEventListener("click", function(){
+  console.log(JSON.stringify(landmarks));
+});
+
 navigator.getUserMedia = navigator.getUserMedia ||
   navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-
-main();
