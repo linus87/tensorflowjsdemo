@@ -233,6 +233,7 @@ const landmarksRealTime = async (video) => {
 
     if (isCollecting && predictions.length > 0) {
       landmarks.push(predictions[0].landmarks);
+      isCollecting = false;
     }
     
     if (predictions.length > 0) {
@@ -285,7 +286,11 @@ document.getElementById("toggle").addEventListener("click", function(){
 });
 
 document.getElementById("collect").addEventListener("click", function(){
-  isCollecting = !isCollecting;
+  isCollecting = true;
+});
+
+document.getElementById("clean").addEventListener("click", function(){
+  landmarks = [];
 });
 
 document.getElementById("toJson").addEventListener("click", function(){
