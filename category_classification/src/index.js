@@ -3,7 +3,7 @@ const numFeatures = 1;
 
 // Define the model architecture
 const model = tf.sequential();
-model.add(tf.layers.embedding({inputDim: 100, outputDim: 2, inputLength: 1, inputShape: [numFeatures]}));
+model.add(tf.layers.embedding({inputDim: 100, outputDim: 1, inputLength: 1, inputShape: [numFeatures]}));
 // Flatten the output of the embedding layer to be able to connect it to a dense layer
 model.add(tf.layers.flatten());
 // model.add(tf.layers.dense({units: 2, activation: 'relu'})); // numFeatures is the number of input features
