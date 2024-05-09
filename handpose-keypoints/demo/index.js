@@ -221,7 +221,7 @@ async function main() {
   landmarksRealTime(video);
 }
 
-let landmarks = [], isCollecting = false;
+let annotations = [], isCollecting = false;
 
 const landmarksRealTime = async (video) => {
   async function frameLandmarks() {
@@ -232,7 +232,8 @@ const landmarksRealTime = async (video) => {
     const predictions = await model.estimateHands(video);
 
     if (isCollecting && predictions.length > 0) {
-      landmarks.push(predictions[0].landmarks);
+      console.log(predictions);
+      annotations.push(predictions[0].annotations);
       isCollecting = false;
     }
     
@@ -290,11 +291,11 @@ document.getElementById("collect").addEventListener("click", function(){
 });
 
 document.getElementById("clean").addEventListener("click", function(){
-  landmarks = [];
+  annotations = [];
 });
 
 document.getElementById("toJson").addEventListener("click", function(){
-  console.log(JSON.stringify(landmarks));
+  console.log(JSON.stringify(annotations));
 });
 
 navigator.getUserMedia = navigator.getUserMedia ||
