@@ -1,14 +1,16 @@
 // Tiny TFJS train / predict example.
 // Define the model architecture
 const model = tf.sequential();
-model.add(tf.layers.inputLayer({inputShape: [5, 4, 3], dtype: 'float32', batchSize: 1}));
+model.add(tf.layers.inputLayer({inputShape: [5, 4], dtype: 'float32', batchSize: 5}));
 model.add(tf.layers.batchNormalization({axis: -1}));
+model.add(tf.layers.dense({units: 1, activation: 'relu'}));
 // model.add(tf.layers.permute({dims:[2, 1]}));
 // Flatten the output of the embedding layer to be able to connect it to a dense layer
 // model.add(tf.layers.layerNormalization({axis: 0}));
 // model.add(tf.layers.flatten());
-model.add(tf.layers.conv2d({filters: 10, kernelSize:1, strides:1, padding:'same'}));
+// model.add(tf.layers.conv2d({filters: 10, kernelSize:1, strides:1, padding:'same'}));
 model.add(tf.layers.flatten());
+model.add(tf.layers.layerNormalization({axis: -1}));
 model.add(tf.layers.dense({units: 2, activation: 'softmax'}));
 
 // Compile the model with a binary loss function and an optimizer
@@ -29,7 +31,28 @@ function toTensorFromPalm(positions) {
   })
 }
 
-function handleAnnotations(annotations) {
+function distanceToPalm(palmBase, positions) {
+  return positions.map(tensor => {
+    const x = tensor[0] - palmBase[0];
+    const y = tensor[1] - palmBase[1];
+    const z = tensor[2] - palmBase[2];
+    return Math.sqrt(x*x + y*y + z*z);
+   });
+}
+
+function convertAnnotationsIntoDistanceFromPalm(annotations) {
+  let xs = [];
+  const palmBase = annotations.palmBase[0];
+  xs.push(distanceToPalm(palmBase, annotations.thumb));
+  xs.push(distanceToPalm(palmBase, annotations.indexFinger));
+  xs.push(distanceToPalm(palmBase, annotations.middleFinger));
+  xs.push(distanceToPalm(palmBase, annotations.ringFinger));
+  xs.push(distanceToPalm(palmBase, annotations.pinky));
+  
+  return tf.tensor(xs);
+}
+
+function convertAnnotationsIntoVector(annotations) {
   let xs = [];
   const palmBase = annotations.palmBase;
   xs.push(toTensorFromPalm(palmBase.concat(annotations.thumb)));
@@ -50,16 +73,16 @@ async function trainModel() {
   const five_landmarks = await five_landmarks_response.json();
   const one_landmarks = await one_landmarks_response.json();
 
-  const five_landmarks_dataset = tf.data.array(five_landmarks).map(annotations => {
-    return {xs: handleAnnotations(annotations), ys: tf.tensor([0])};
-  });
-  const one_landmarks_dataset = tf.data.array(one_landmarks).map(annotations => {return {xs: handleAnnotations(annotations), ys: tf.tensor([1])};});
+  const five_landmarks_dataset = tf.data.array(five_landmarks).map(annotations => {return {xs: convertAnnotationsIntoDistanceFromPalm(annotations), ys: tf.tensor([0])};});
+  const one_landmarks_dataset = tf.data.array(one_landmarks).map(annotations => {return {xs: convertAnnotationsIntoDistanceFromPalm(annotations), ys: tf.tensor([1])};});
 
-  const landmarksDataset = five_landmarks_dataset.concatenate(one_landmarks_dataset).batch(1);
+  const landmarksDataset = five_landmarks_dataset.concatenate(one_landmarks_dataset).batch(5);
+  await landmarksDataset.forEachAsync(e => e.xs.print());
+
 
   const history = await model.fitDataset(landmarksDataset, {
     validationBatches: 1,
-    epochs: 50, // Number of iterations over the entire dataset
+    epochs: 100, // Number of iterations over the entire dataset
     validationData: landmarksDataset,
   });
 
@@ -74,7 +97,7 @@ function doPredict() {
   // Make predictions (again, this is just an example, replace with your actual data)
   const value = JSON.parse(document.getElementById('number').value);
   console.log(value);
-  const predictions = model.predict(tf.tensor([value], [1, 21, 3]) );
+  const predictions = model.predict(tf.tensor([value], [1, 5, 4]) );
   predictions.print(); // This will output probabilities. You can threshold at 0.5 for binary classification.
 
   predictions.argMax(1).data().then(index => {
