@@ -22,11 +22,11 @@ model.compile({
 model.summary();
 tfvis.show.modelSummary({name: 'Model Summary'}, model);
 
-// Generate some synthetic data for training
+// 1 means the finger is up, 0 means the finger is down
 const fingers = [[0, 0, 0, 0, 0], [0, 1, 0, 0, 0], [0, 1, 1, 0, 0], [0, 0, 1, 1, 1], [0, 1, 1, 1, 1], [1, 1, 1, 1, 1]];
 const fingerTensors = tf.tensor(fingers, [6, 5], 'int32');
 // const lables = numbers.mod(tf.scalar(2)).toInt();
-const labels = tf.tensor([0, 1, 2, 3, 4, 5], [6], 'int32'); // 0 for even, 1 for odd numbers
+const labels = tf.tensor([0, 1, 2, 3, 4, 5], [6], 'int32'); 
 
 labels.print(true);
 

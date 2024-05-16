@@ -17,7 +17,7 @@ model.summary();
 tfvis.show.modelSummary({name: 'Model Summary'}, model);
 
 // Generate some synthetic data for training
-const fingers = tf.tensor([[0, 0, 0, 0, 0], [0, 1, 0, 0, 0], [0, 1, 1, 0, 0], [0, 0, 1, 1, 1], [0, 1, 1, 1, 1], [1, 1, 1, 1, 1]], [6, 5], 'int32');
+const fingers = tf.tensor([[0.6, 0, 0, 0, 0], [0.8, 1, 0, 0, 0], [0, 1, 1, 0, 0], [0, 0, 1, 1, 1], [0, 1, 1, 1, 1], [1, 1, 1, 1, 1]], [6, 5], 'int32');
 // const lables = numbers.mod(tf.scalar(2)).toInt();
 const labels = tf.tensor([0, 1, 2, 3, 4, 5], [6], 'int32'); // 0 for even, 1 for odd numbers
 
@@ -31,7 +31,7 @@ oneHotLabels.print(true);
 // Train the model
 async function trainModel() {
   const history = await model.fit(fingers, oneHotLabels, {
-    epochs: 8000, // Number of iterations over the entire dataset,
+    epochs: 1000, // Number of iterations over the entire dataset,
     validationSplit: 1, // 50% of the data will be used for validation
     shuffle: true
   });
