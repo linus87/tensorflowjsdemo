@@ -12,14 +12,14 @@ model.add(tf.layers.inputLayer({inputShape: [5, 1], dtype: 'float32', batchSize:
 model.add(tf.layers.flatten());
 // model.add(tf.layers.layerNormalization({axis: -1}));
 // model.add(tf.layers.dense({units: 1, activation: 'sigmoid'}));
-const wieghts = tf.tensor([[0.4285955 , -0.4196281, -2.3498352, -4.0158319, -8.9092369, 6.6489644 ],
-  [-6.1820574, 9.5308514 , 4.6734819 , -8.0183411, 9.0317717 , 1.7292143 ],
-  [-3.2929487, -8.0325375, 8.8502007 , 4.6598635 , -2.5088193, -1.5274763],
-  [-1.7355452, -2.8372762, -5.6640782, 3.2940524 , 5.0955324 , 1.7308692 ],
-  [-2.4063451, -1.977569 , -5.6118159, 3.7133763 , 4.4479179 , 0.9957244 ]]
+const wieghts = tf.tensor([[3.2218969 , -1.8663737, -3.477216 , -2.1979196, -9.871151, 0.2024691, 2.190202  , -0.1882586, 2.0197496 , 1.6175656 ],
+  [-6.0136957, 5.0744133 , 2.5621598 , -8.4135132, 1.3143432, 0.240703 , -5.2118402, -1.3409088, 2.033278  , 1.5436258 ],
+  [-3.1186938, -4.5643411, 5.1157742 , 2.8699007 , 1.5178241, 0.2127987, -4.0384626, 2.8297927 , -3.9003229, -3.4731734],
+  [-0.6022994, -2.4009905, -4.028862 , 3.1515486 , 2.549145 , 3.3925426, -4.204442 , -1.5043688, -1.7274327, -2.157166 ],
+  [-2.9048569, -0.9780643, -2.2000251, 2.5857329 , 2.4415894, 1.4200983, 5.928185  , -3.0472519, -0.9030867, -6.6117096]]
 );
-const bias = tf.tensor([9.1208906, 1.0854325, -2.4544923, -2.1743815, -8.057126, -6.4409657]);
-model.add(tf.layers.dense({weights: [wieghts, bias], units: 6, activation: 'softmax'}));
+const bias = tf.tensor([4.1865149, 0.903378, -1.2850181, -0.3665743, -1.1681888, -5.2610803, 0.3457573, 0.7096063, -0.6336471, 2.7892659]);
+model.add(tf.layers.dense({weights: [wieghts, bias], units: 10, activation: 'softmax'}));
 
 // Compile the model with a binary loss function and an optimizer
 model.compile({
@@ -100,6 +100,10 @@ async function trainModel() {
   const three_landmarks_response = await fetch('/test_data/three/annotations.json');
   const four_landmarks_response = await fetch('/test_data/four/annotations.json');
   const five_landmarks_response = await fetch('/test_data/five/annotations.json');
+  const six_landmarks_response = await fetch('/test_data/six/annotations.json');
+  const seven_landmarks_response = await fetch('/test_data/seven/annotations.json');
+  const eight_landmarks_response = await fetch('/test_data/eight/annotations.json');
+  const nine_landmarks_response = await fetch('/test_data/nine/annotations.json');
 
   const fit_landmarks = await fit_landmarks_response.json();
   const one_landmarks = await one_landmarks_response.json();
@@ -107,23 +111,25 @@ async function trainModel() {
   const three_landmarks = await three_landmarks_response.json();
   const four_landmarks = await four_landmarks_response.json();
   const five_landmarks = await five_landmarks_response.json();
+  const six_landmarks = await six_landmarks_response.json();
+  const seven_landmarks = await seven_landmarks_response.json();
+  const eight_landmarks = await eight_landmarks_response.json();
+  const nine_landmarks = await nine_landmarks_response.json();
 
-  // const fit_landmarks_dataset = tf.data.array(fit_landmarks).map(annotations => {return {xs: convertAnnotationsIntoDistanceFromPalm(annotations), ys: tf.tensor([0, 0, 0, 0, 0])};});
-  // const one_landmarks_dataset = tf.data.array(one_landmarks).map(annotations => {return {xs: convertAnnotationsIntoDistanceFromPalm(annotations), ys: tf.tensor([0, 1, 0, 0, 0])};});
-  // const two_landmarks_dataset = tf.data.array(two_landmarks).map(annotations => {return {xs: convertAnnotationsIntoDistanceFromPalm(annotations), ys: tf.tensor([0, 1, 1, 0, 0])};});
-  // const three_landmarks_dataset = tf.data.array(three_landmarks).map(annotations => {return {xs: convertAnnotationsIntoDistanceFromPalm(annotations), ys: tf.tensor([0, 0, 1, 1, 1])};});
-  // const four_landmarks_dataset = tf.data.array(four_landmarks).map(annotations => {return {xs: convertAnnotationsIntoDistanceFromPalm(annotations), ys: tf.tensor([0, 1, 1, 1, 1])};});
-  // const five_landmarks_dataset = tf.data.array(five_landmarks).map(annotations => {return {xs: convertAnnotationsIntoDistanceFromPalm(annotations), ys: tf.tensor([1, 1, 1, 1, 1])};});
-
-  const fit_landmarks_dataset = tf.data.array(fit_landmarks).map(annotations => {return {xs: convertAnnotationsIntoDistanceFromPalm(annotations), ys: tf.oneHot([0], 6) };});
-  const one_landmarks_dataset = tf.data.array(one_landmarks).map(annotations => {return {xs: convertAnnotationsIntoDistanceFromPalm(annotations), ys: tf.oneHot([1], 6) };});
-  const two_landmarks_dataset = tf.data.array(two_landmarks).map(annotations => {return {xs: convertAnnotationsIntoDistanceFromPalm(annotations), ys: tf.oneHot([2], 6) };});
-  const three_landmarks_dataset = tf.data.array(three_landmarks).map(annotations => {return {xs: convertAnnotationsIntoDistanceFromPalm(annotations), ys: tf.oneHot([3], 6) };});
-  const four_landmarks_dataset = tf.data.array(four_landmarks).map(annotations => {return {xs: convertAnnotationsIntoDistanceFromPalm(annotations), ys: tf.oneHot([4], 6) };});
-  const five_landmarks_dataset = tf.data.array(five_landmarks).map(annotations => {return {xs: convertAnnotationsIntoDistanceFromPalm(annotations), ys: tf.oneHot([5], 6) };});
+  const fit_landmarks_dataset = tf.data.array(fit_landmarks).map(annotations => {return {xs: convertAnnotationsIntoDistanceFromPalm(annotations), ys: tf.oneHot([0], 10) };});
+  const one_landmarks_dataset = tf.data.array(one_landmarks).map(annotations => {return {xs: convertAnnotationsIntoDistanceFromPalm(annotations), ys: tf.oneHot([1], 10) };});
+  const two_landmarks_dataset = tf.data.array(two_landmarks).map(annotations => {return {xs: convertAnnotationsIntoDistanceFromPalm(annotations), ys: tf.oneHot([2], 10) };});
+  const three_landmarks_dataset = tf.data.array(three_landmarks).map(annotations => {return {xs: convertAnnotationsIntoDistanceFromPalm(annotations), ys: tf.oneHot([3], 10) };});
+  const four_landmarks_dataset = tf.data.array(four_landmarks).map(annotations => {return {xs: convertAnnotationsIntoDistanceFromPalm(annotations), ys: tf.oneHot([4], 10) };});
+  const five_landmarks_dataset = tf.data.array(five_landmarks).map(annotations => {return {xs: convertAnnotationsIntoDistanceFromPalm(annotations), ys: tf.oneHot([5], 10) };});
+  const six_landmarks_dataset = tf.data.array(six_landmarks).map(annotations => {return {xs: convertAnnotationsIntoDistanceFromPalm(annotations), ys: tf.oneHot([6], 10) };});
+  const seven_landmarks_dataset = tf.data.array(seven_landmarks).map(annotations => {return {xs: convertAnnotationsIntoDistanceFromPalm(annotations), ys: tf.oneHot([7], 10) };});
+  const eight_landmarks_dataset = tf.data.array(eight_landmarks).map(annotations => {return {xs: convertAnnotationsIntoDistanceFromPalm(annotations), ys: tf.oneHot([8], 10) };});
+  const nine_landmarks_dataset = tf.data.array(nine_landmarks).map(annotations => {return {xs: convertAnnotationsIntoDistanceFromPalm(annotations), ys: tf.oneHot([9], 10) };});
 
   const landmarksDataset = fit_landmarks_dataset.concatenate(one_landmarks_dataset).concatenate(two_landmarks_dataset)
-    .concatenate(three_landmarks_dataset).concatenate(four_landmarks_dataset).concatenate(five_landmarks_dataset).batch(1);
+    .concatenate(three_landmarks_dataset).concatenate(four_landmarks_dataset).concatenate(five_landmarks_dataset)
+    .concatenate(six_landmarks_dataset).concatenate(seven_landmarks_dataset).concatenate(eight_landmarks_dataset).concatenate(nine_landmarks_dataset).batch(1);
   await landmarksDataset.forEachAsync(e => {e.ys.print(); e.xs.print()});
 
 
@@ -137,7 +143,7 @@ async function trainModel() {
 }
 
 trainModel();
-const classNames = ['Fit', 'One', 'Two', 'Three', 'Four', 'Five'];
+const classNames = ['Fit', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
 
 function doPredict() {
 
@@ -148,5 +154,5 @@ function doPredict() {
   predictions.print(); // This will output probabilities. You can threshold at 0.5 for binary classification.
 }
 
-document.getElementById('predict').addEventListener('click', doPredict);
+
 
