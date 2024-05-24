@@ -16,9 +16,85 @@
  */
 
 import * as handpose from '@tensorflow-models/handpose';
-import * as tf from '@tensorflow/tfjs-core';
+import * as tf from '@tensorflow/tfjs';
 import * as tfjsWasm from '@tensorflow/tfjs-backend-wasm';
 import '@tensorflow/tfjs-backend-webgl';
+
+function toTensorFromPalm(positions) {
+  return positions.reduce((accumulator, currentValue, currentIndex, array) => {
+    let previous = array[currentIndex - 1];
+    if (currentIndex === 1) return [[currentValue[0] - previous[0], currentValue[1] - previous[1], currentValue[2] - previous[2]]];
+    else return accumulator.concat([[currentValue[0] - previous[0], currentValue[1] - previous[1], currentValue[2] - previous[2]]]);
+  })
+}
+
+function convertAnnotationsIntoVector(annotations) {
+  let xs = [];
+  const palmBase = annotations.palmBase;
+  xs.push(toTensorFromPalm(palmBase.concat(annotations.thumb)));
+  xs.push(toTensorFromPalm(palmBase.concat(annotations.indexFinger)));
+  xs.push(toTensorFromPalm(palmBase.concat(annotations.middleFinger)));
+  xs.push(toTensorFromPalm(palmBase.concat(annotations.ringFinger)));
+  xs.push(toTensorFromPalm(palmBase.concat(annotations.pinky)));
+  
+  return tf.tensor(xs);
+}
+
+function convertVectorsIntoAngles(annotations) {
+  const fingerTensors = convertAnnotationsIntoVector(annotations);
+  // fingerTensors.print();
+  const fingerSegmentLengthTensors = tf.norm(fingerTensors, 2, 2, true);
+  // fingerSegmentLengthTensors.print();
+
+  const fingerVectors = fingerTensors.arraySync();
+  const fingerSegmentVectorsDot = fingerVectors.map(segments => segments.reduce((accumulator, currentValue, currentIndex, array) => {
+    let previous = array[currentIndex - 1];
+    if (currentIndex === 1) return [currentValue[0] * previous[0] + currentValue[1] * previous[1] + currentValue[2] * previous[2]];
+    else return accumulator.concat(currentValue[0] * previous[0] + currentValue[1] * previous[1] + currentValue[2] * previous[2]);
+  }));
+  // console.log(fingerSegmentVectorsDot);
+
+  const fingerSegmentLengths = fingerSegmentLengthTensors.arraySync();
+  const fingerSegmentsAngles = fingerSegmentVectorsDot.map((finger, fingerIndex) => finger.map((segment, segmentIndex) => segment / fingerSegmentLengths[fingerIndex][segmentIndex] / fingerSegmentLengths[fingerIndex][segmentIndex+1]) );
+  // console.log(fingerSegmentsAngles);
+  
+  return tf.tensor(fingerSegmentsAngles);
+}
+
+const classNames = ['Fist', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+console.log(tf);
+const numericHanposeModel = tf.sequential();
+numericHanposeModel.add(tf.layers.inputLayer({inputShape: [5, 3], dtype: 'float32', batchSize: 1}));
+numericHanposeModel.add(tf.layers.activation({activation: 'relu'}));
+numericHanposeModel.add(tf.layers.flatten());
+const weights = tf.tensor([[2.6339848 , -0.7821255, -0.9852441, 0.0480192  , -0.3466824 , -1.9451324, -0.2665296, 0.4633622 , 0.5863307 , 1.4673749 ],
+  [1.9798787 , -3.6038599, -4.460216 , 0.2952887  , -10.3301592, 2.3445635 , -0.143085 , 0.92823   , 2.5617113 , 2.1121659 ],
+  [1.9838854 , -0.3016337, -0.5679148, -4.4008055 , -2.9695716 , 0.0452375 , 0.2540358 , 0.3761422 , 0.0191029 , 0.3871876 ],
+  [-5.0452185, 0.655054  , 0.7981847 , 0.4678645  , 0.6775135  , -0.3385722, -0.3506645, -1.8684748, -1.1486729, 3.8903823 ],
+  [-8.430047 , 1.0430573 , 0.1428999 , -12.6395006, 0.5788171  , -0.1291275, -8.076951 , 1.1151588 , 0.273112  , 0.7584921 ],
+  [-0.3173599, 0.5262296 , -0.0265811, -0.4357024 , -0.1919112 , -2.4167848, 0.0672482 , 0.8349618 , -0.6821571, 1.6574062 ],
+  [-0.0781015, 0.9455061 , 0.3056812 , 0.8599624  , 0.1987738  , -0.3718994, -4.5338659, -0.1285613, -0.7152275, -2.9902966],
+  [-3.3314159, -4.2465887, 4.936142  , 3.0950744  , 0.9306732  , -0.0423123, -3.0542874, 3.0736477 , -2.4638669, -1.128652 ],
+  [0.9750291 , 0.3274792 , -0.0958808, 0.118009   , 0.4248115  , -1.2034907, 1.4910746 , 1.3296365 , -0.7900974, -2.8479481],
+  [-1.4355721, 0.406817  , 0.7897013 , 1.3567253  , 0.705112   , 0.0477447 , -3.2462018, -0.7236025, 0.5025509 , -5.1215072],
+  [1.6338153 , -2.3408177, -6.9712372, 3.397702   , 2.5956841  , 3.6143422 , -1.8373487, -0.3265107, -1.8837547, 1.1698129 ],
+  [1.8685191 , 0.5671845 , 0.5649589 , 0.3055698  , 0.1246265  , 0.7307346 , 1.4903445 , -2.0175452, 0.1810325 , -1.7679509],
+  [-4.8163428, 0.1706621 , 0.3639418 , 0.5388684  , 1.2080667  , 0.6291083 , 3.2750857 , -3.0049524, 0.7873013 , -3.3101127],
+  [-0.9758605, -1.1150088, 1.296903  , 1.4453139  , 1.4802957  , 2.7682326 , 6.4073501 , -2.96071  , -4.3682613, -0.7844887],
+  [1.6052431 , 0.0245548 , -1.1945288, -0.017442  , 0.2870344  , 0.3435654 , 1.4639882 , -1.0085355, -0.3355551, -1.1747116]]
+);
+const bias = tf.tensor([2.6990962, 0.1053372, -0.4259273, -0.4504739, 0.0568584, -2.4289062, -0.7209694, 0.1070402, -0.5185959, 1.0869477]
+);
+numericHanposeModel.add(tf.layers.dense({weights: [weights, bias], units: 10, activation: 'softmax'}));
+
+// Compile the model with a binary loss function and an optimizer
+numericHanposeModel.compile({
+  optimizer: 'adam',
+  loss: 'categoricalCrossentropy',
+  metrics: ['accuracy'],
+});
+
+/****** Segment line ******/
 
 function isMobile() {
   const isAndroid = /Android/i.test(navigator.userAgent);
@@ -47,34 +123,9 @@ const mobile = isMobile();
 const renderPointcloud = mobile === false;
 
 const state = {
-  backend: 'webgl'
+  backend: 'webgl',
+  renderPointcloud: renderPointcloud
 };
-
-const stats = new Stats();
-stats.showPanel(0);
-document.body.appendChild(stats.dom);
-
-if (renderPointcloud) {
-  state.renderPointcloud = true;
-}
-
-function setupDatGui() {
-  const gui = new dat.GUI();
-  gui.add(state, 'backend', ['webgl', 'wasm'])
-    .onChange(async backend => {
-      window.cancelAnimationFrame(rafID);
-      await tf.setBackend(backend);
-      await addFlagLabels();
-      landmarksRealTime(video);
-    });
-
-  if (renderPointcloud) {
-    gui.add(state, 'renderPointcloud').onChange(render => {
-      document.querySelector('#scatter-gl-container').style.display =
-        render ? 'inline-block' : 'none';
-    });
-  }
-}
 
 function drawPoint(y, x, r) {
   ctx.beginPath();
@@ -183,7 +234,7 @@ async function main() {
     throw e;
   }
 
-  setupDatGui();
+  // setupDatGui();
 
   videoWidth = video.videoWidth;
   videoHeight = video.videoHeight;
@@ -225,50 +276,24 @@ let annotations = [], isCollecting = false;
 
 const landmarksRealTime = async (video) => {
   async function frameLandmarks() {
-    stats.begin();
+
     ctx.drawImage(
       video, 0, 0, videoWidth, videoHeight, 0, 0, canvas.width,
       canvas.height);
     const predictions = await model.estimateHands(video);
-
-    if (isCollecting && predictions.length > 0) {
-      console.log(predictions);
-      annotations.push(predictions[0].annotations);
-      isCollecting = false;
-    }
-    
+    // console.log(predictions);
     if (predictions.length > 0) {
+
+      const handposePredicts = numericHanposeModel.predict(convertVectorsIntoAngles(predictions[0].annotations).reshape([1, 5, 3]));
+
+      handposePredicts.argMax(1).data().then(index => {
+          console.log(`${classNames[index]}`);
+      });
+
       const result = predictions[0].landmarks;
       drawKeypoints(result, predictions[0].annotations);
 
-      if (renderPointcloud === true && scatterGL != null) {
-        const pointsData = result.map(point => {
-          return [-point[0], -point[1], -point[2]];
-        });
-
-        const dataset =
-          new ScatterGL.Dataset([...pointsData, ...ANCHOR_POINTS]);
-
-        if (!scatterGLHasInitialized) {
-          scatterGL.render(dataset);
-
-          const fingers = Object.keys(fingerLookupIndices);
-
-          scatterGL.setSequences(
-            fingers.map(finger => ({ indices: fingerLookupIndices[finger] })));
-          scatterGL.setPointColorer((index) => {
-            if (index < pointsData.length) {
-              return 'steelblue';
-            }
-            return 'white';  // Hide.
-          });
-        } else {
-          scatterGL.updateDataset(dataset);
-        }
-        scatterGLHasInitialized = true;
-      }
     }
-    stats.end();
     rafID = requestAnimationFrame(frameLandmarks);
   };
 
@@ -276,29 +301,6 @@ const landmarksRealTime = async (video) => {
 };
 
 main();
-
-
-
-document.getElementById("toggle").addEventListener("click", function(){
-  if (rafID) {
-    window.cancelAnimationFrame(rafID);
-    rafID = null;
-  } else {
-    landmarksRealTime(video);
-  }
-});
-
-document.getElementById("collect").addEventListener("click", function(){
-  isCollecting = true;
-});
-
-document.getElementById("clean").addEventListener("click", function(){
-  annotations = [];
-});
-
-document.getElementById("toJson").addEventListener("click", function(){
-  console.log(JSON.stringify(annotations));
-});
 
 navigator.getUserMedia = navigator.getUserMedia ||
   navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
