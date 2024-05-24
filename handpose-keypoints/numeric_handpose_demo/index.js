@@ -61,7 +61,7 @@ function convertVectorsIntoAngles(annotations) {
   return tf.tensor(fingerSegmentsAngles);
 }
 
-const classNames = ['Fist', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+const classNames = ['fist', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
 console.log(tf);
 const numericHanposeModel = tf.sequential();
 numericHanposeModel.add(tf.layers.inputLayer({inputShape: [5, 3], dtype: 'float32', batchSize: 1}));
@@ -197,25 +197,6 @@ async function loadVideo() {
   video.play();
   return video;
 }
-async function addFlagLabels() {
-  if (!document.querySelector("#simd_supported")) {
-    const simdSupportLabel = document.createElement("div");
-    simdSupportLabel.id = "simd_supported";
-    simdSupportLabel.style = "font-weight: bold";
-    const simdSupported = await tf.env().getAsync('WASM_HAS_SIMD_SUPPORT');
-    simdSupportLabel.innerHTML = `SIMD supported: <span class=${simdSupported}>${simdSupported}<span>`;
-    document.querySelector("#info").appendChild(simdSupportLabel);
-  }
-
-  if (!document.querySelector("#threads_supported")) {
-    const threadSupportLabel = document.createElement("div");
-    threadSupportLabel.id = "threads_supported";
-    threadSupportLabel.style = "font-weight: bold";
-    const threadsSupported = await tf.env().getAsync('WASM_HAS_MULTITHREAD_SUPPORT');
-    threadSupportLabel.innerHTML = `Threads supported: <span class=${threadsSupported}>${threadsSupported}</span>`;
-    document.querySelector("#info").appendChild(threadSupportLabel);
-  }
-}
 
 let video;
 async function main() {
@@ -233,8 +214,6 @@ async function main() {
     info.style.display = 'block';
     throw e;
   }
-
-  // setupDatGui();
 
   videoWidth = video.videoWidth;
   videoHeight = video.videoHeight;
@@ -255,24 +234,15 @@ async function main() {
 
   // These anchor points allow the hand pointcloud to resize according to its
   // position in the input.
-  ANCHOR_POINTS = [
-    [0, 0, 0], [0, -VIDEO_HEIGHT, 0], [-VIDEO_WIDTH, 0, 0],
-    [-VIDEO_WIDTH, -VIDEO_HEIGHT, 0]
-  ];
-
-  if (renderPointcloud) {
-    document.querySelector('#scatter-gl-container').style =
-      `width: ${VIDEO_WIDTH}px; height: ${VIDEO_HEIGHT}px;`;
-
-    scatterGL = new ScatterGL(
-      document.querySelector('#scatter-gl-container'),
-      { 'rotateOnStart': false, 'selectEnabled': false });
-  }
+  // ANCHOR_POINTS = [
+  //   [0, 0, 0], [0, -VIDEO_HEIGHT, 0], [-VIDEO_WIDTH, 0, 0],
+  //   [-VIDEO_WIDTH, -VIDEO_HEIGHT, 0]
+  // ];
 
   landmarksRealTime(video);
 }
 
-let annotations = [], isCollecting = false;
+const handposeImg = document.getElementById('current-pose');
 
 const landmarksRealTime = async (video) => {
   async function frameLandmarks() {
@@ -288,6 +258,7 @@ const landmarksRealTime = async (video) => {
 
       handposePredicts.argMax(1).data().then(index => {
           console.log(`${classNames[index]}`);
+          handposeImg.src = `poses/${classNames[index]}.png`;
       });
 
       const result = predictions[0].landmarks;
