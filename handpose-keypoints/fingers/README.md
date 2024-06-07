@@ -1,0 +1,1 @@
+This is just a test to verify if distance from palm can do the recognition job.
