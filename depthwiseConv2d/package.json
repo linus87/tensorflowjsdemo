@@ -1,0 +1,27 @@
+{
+  "name": "depthwise-conv2-layer",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "license": "Apache-2.0",
+  "private": true,
+  "engines": {
+    "node": ">=8.9.0"
+  },
+  "scripts": {
+    "watch": "cross-env NODE_ENV=development parcel index.html --no-hmr --open",
+    "build": "cross-env NODE_ENV=production parcel build index.html --public-url ./"
+  },
+  "dependencies": {
+    "@tensorflow/tfjs": "^4.20.0"
+  },
+  "devDependencies": {
+    "cross-env": "^5.2.0",
+    "parcel-bundler": "1.12.5",
+    "parcel-plugin-static-files-copy": "^2.5.1",
+    "typescript": "~5.1.6"
+  },
+  "resolutions": {
+    "follow-redirects": "1.14.8"
+  }
+}
