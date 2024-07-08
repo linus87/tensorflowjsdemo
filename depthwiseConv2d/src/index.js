@@ -1,7 +1,4 @@
 // Tiny TFJS train / predict example.
-
-
-import loadImage from "./loadImage";
 import * as tf from '@tensorflow/tfjs';
 
 const imageSize = 200;
@@ -11,10 +8,8 @@ const channelSize = 3;
 // Tiny TFJS train / predict example.
 let model;
 async function run() {
-  // const imageBlob = await loadImage('/cat.jpeg');
-  // console.log(imageBlob) ;
+
   let fromBlobImgElement = document.getElementById('fromBlobImg');
-  // fromBlobImgElement.src = URL.createObjectURL(imageBlob);
 
   const imageOrigialPixels = tf.browser.fromPixels(fromBlobImgElement);
   const compresedPixels = tf.image.resizeBilinear(imageOrigialPixels, [imageSize, imageSize]).toInt();
