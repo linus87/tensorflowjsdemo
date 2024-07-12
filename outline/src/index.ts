@@ -2,8 +2,8 @@
 import * as tf from '@tensorflow/tfjs';
 
 const imageSize = 200;
-const outlineWidth = 2;
-const colorShrehold = 20;
+const outlineWidth = 1;
+const colorShrehold = 10;
 const channelSize = 3;
 
 function showImage(x: tf.Tensor3D, container: HTMLElement | null) {
@@ -19,7 +19,6 @@ function showImage(x: tf.Tensor3D, container: HTMLElement | null) {
 }
 
 // Tiny TFJS train / predict example.
-let model;
 async function run() {
 
   let fromBlobImgElement = document.getElementById('fromBlobImg') as HTMLImageElement;
@@ -27,6 +26,7 @@ async function run() {
   let outlineContainer: HTMLElement | null = document.getElementById('outline-container');
   let compressedImg = document.getElementById('compressedImg') as HTMLCanvasElement || undefined;
   let resultImg = document.getElementById('result') as HTMLCanvasElement || undefined;
+  let croppedImg = document.getElementById('cropped') as HTMLCanvasElement || undefined;
 
   const imageOrigialPixels = fromBlobImgElement != null && tf.browser.fromPixels(fromBlobImgElement);
   const compresedPixels = tf.image.resizeBilinear(imageOrigialPixels, [imageSize, imageSize]).toInt();
@@ -55,76 +55,14 @@ async function run() {
   showImage(leftOutline, outlineContainer);
 
   const maximumOutline = upperOutline.maximum(rightOutline).maximum(bottomOutline).maximum(leftOutline) as tf.Tensor3D;
-  const result = tf.clipByValue(maximumOutline, colorShrehold, 255).toInt();
+  const thresholdTensor = tf.fill([imageSize, imageSize, channelSize], colorShrehold);
+  const result = tf.sub(maximumOutline, thresholdTensor).relu().toInt() as tf.Tensor3D;
   tf.browser.toPixels(result, resultImg);
 
-  // tf.addN([upperOutline, rightOutline, bottomOutline, leftOutline]);
+  const mask = result.sign().toInt();
 
-
-  // const all = tf.pad(compresedPixels, [[paddingSize, paddingSize], [paddingSize, paddingSize], [0, 0]]);
-  // showImage(all, container);
-
-  // const batch = compresedPixels.reshape([1, imageSize, imageSize, channelSize]) as tf.Tensor4D;
-
-  // const result = tf.image.cropAndResize(batch, 
-  //   [[0, paddingSize, imageSize, imageSize + paddingSize], 
-  //   [paddingSize, paddingSize * 2, imageSize + paddingSize, imageSize + paddingSize * 2], 
-  //   [paddingSize * 2, paddingSize, imageSize + paddingSize * 2, imageSize + paddingSize], 
-  //   [paddingSize, 0, imageSize + paddingSize, imageSize]], [0, 1, 0, 0], [imageSize, imageSize]);
-
-  // const cropped = tf.split(result, 4, 0);
-
-  // for (let i = 0; i < 4; i++) {
-  //   let img = cropped[i].squeeze().toInt() as tf.Tensor3D;
-  //   img.print();
-  //   showImage(img, container);
-  // }
-  // console.log(result);
-
-
-
-  // let rightCanvas = document.createElement('canvas');
-  // canvas.width = imageSize;
-  // canvas.height = imageSize;
-  // document.getElementById('filter-container').appendChild(canvas);
-  // tf.browser.toPixels(right.squeeze().toInt(), rightCanvas);
-
-  // let bottomCanvas = document.createElement('canvas');
-  // canvas.width = imageSize;
-  // canvas.height = imageSize;
-  // document.getElementById('filter-container').appendChild(canvas);
-  // tf.browser.toPixels(bottom.squeeze().toInt(), bottomCanvas);
-
-  // let leftCanvas = document.createElement('canvas');
-  // canvas.width = imageSize;
-  // canvas.height = imageSize;
-  // document.getElementById('filter-container').appendChild(canvas);
-  // tf.browser.toPixels(left.squeeze().toInt(), leftCanvas);
-
-  // // Create a simple model.
-  // model = tf.sequential();
-  
-  // model.add(tf.layers.inputLayer({batchInputShape: [1, null, null, channelSize]})); 
-  // model.add(tf.layers.zeroPadding2d({padding: [[2, 2], [2, 2]], dataFormat: 'channelsLast'})); 
-  // model.add(tf.layers.centerCrop({height: imageSize, width: imageSize})); 
-  // // model.add(tf.layers.depthwiseConv2d({depthMultiplier:1, kernelSize:kernelSize, strides:2, padding:'same', dataFormat:'channelsLast', activation: 'relu'}));
-
-  // model.summary();
-
-  // const result = model.predict(compresedPixels.reshape([1, imageSize, imageSize, channelSize]));
-  // let resultCanvasElement = document.getElementById('result') as HTMLCanvasElement;
-  // tf.browser.toPixels(result.squeeze().toInt(), resultCanvasElement);
-  // const filterResults = tf.split(result, channelSize, 3);
-
-  // for (let i = 0; i < channelSize; i++) {
-  //   let canvas = document.createElement('canvas');
-  //   canvas.width = imageSize;
-  //   canvas.height = imageSize;
-  //   document.getElementById('filter-container').appendChild(canvas);
-  //   tf.browser.toPixels(filterResults[i].squeeze().toInt(), canvas);
-  // }
-  // console.log(model.getLayer("depthwise_conv2d_DepthwiseC").getWeights());
-  
+  const cropped = tf.mul(mask, compresedPixels).toInt() as tf.Tensor3D;
+  tf.browser.toPixels(cropped, croppedImg);
 }
   
 run();
