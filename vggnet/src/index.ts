@@ -61,18 +61,17 @@ async function run() {
 
   model.add(tf.layers.maxPooling2d({poolSize: [2, 2], strides: 2, padding: 'same'}));
 
-  model.add(tf.layers.conv2d({filters: 4096, kernelSize: 7, strides: 7, padding: 'same', activation: 'relu'}));
-  model.add(tf.layers.conv2d({filters: 4096, kernelSize: 1, strides: 1, padding: 'same', activation: 'relu'}));
+  // model.add(tf.layers.conv2d({filters: 4096, kernelSize: 7, strides: 7, padding: 'same', activation: 'relu'}));
+  // model.add(tf.layers.conv2d({filters: 4096, kernelSize: 1, strides: 1, padding: 'same', activation: 'relu'}));
 
-  model.add(tf.layers.conv2d({filters: 1000, kernelSize: 1, strides: 1, padding: 'same', activation: 'softmax'}));
+  // model.add(tf.layers.conv2d({filters: 1000, kernelSize: 1, strides: 1, padding: 'same', activation: 'softmax'}));
 
-  // model.add(tf.layers.flatten());
   model.add(tf.layers.flatten());
 
-  // model.add(tf.layers.dense({units: 4096, activation: 'relu'}));
-  // model.add(tf.layers.dense({units: 4096, activation: 'relu'}));
+  model.add(tf.layers.dense({units: 4096, activation: 'relu'}));
+  model.add(tf.layers.dense({units: 4096, activation: 'relu'}));
 
-  // model.add(tf.layers.dense({units: 1000, activation: 'softmax'}));
+  model.add(tf.layers.dense({units: 1000, activation: 'softmax'}));
 
   model.summary();
 

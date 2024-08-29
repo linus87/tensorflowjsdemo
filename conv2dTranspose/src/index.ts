@@ -27,7 +27,6 @@ async function run() {
   const compresedPixels = tf.image.resizeBilinear(imageOrigialPixels, [imageSize, imageSize]);
 
   const filter1 = tf.variable(tf.randomNormal([3, 3, 3, 3])) as tf.Tensor4D;
-
   const filter2 = tf.variable(tf.randomNormal([3, 3, 3, 1])) as tf.Tensor4D;
 
   const conv1 = tf.conv2d(compresedPixels, filter1, [1, 1], 'same').relu();
