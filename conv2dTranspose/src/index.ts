@@ -1,5 +1,6 @@
 // Tiny TFJS train / predict example.
 import * as tf from '@tensorflow/tfjs';
+import * as tfvis from '@tensorflow/tfjs-vis';
 
 const imageSize = 224;
 const channelSize = 3;
@@ -30,13 +31,15 @@ async function run() {
   const filter2 = tf.variable(tf.randomNormal([3, 3, 3, 1])) as tf.Tensor4D;
 
   const conv1 = tf.conv2d(compresedPixels, filter1, [1, 1], 'same').relu();
-  showImage(conv1.toInt().clipByValue(0, 255) as tf.Tensor3D, document.getElementById('filter-container'));
+  showImage(conv1.toInt().clipByValue(0, 255) as tf.Tensor3D, document.getElementById('featuremap-1'));
   
   const conv2 = tf.conv2d(conv1 as tf.Tensor3D, filter2, [1, 1], 'same').relu();
-  showImage(conv2.toInt().clipByValue(0, 255) as tf.Tensor3D, document.getElementById('filter-container'));
+  const conv2HeatMap = tf.transpose(conv2.squeeze() as tf.Tensor2D);
+  tfvis.render.heatmap(document.getElementById('featuremap-2') as HTMLElement, {values: conv2HeatMap}, {height: 250, width: 300});
 
   const pool1 = tf.pool(conv2 as tf.Tensor3D, [2, 2], 'max', 'same', [1, 1], 2);
-  showImage(pool1.toInt().clipByValue(0, 255) as tf.Tensor3D, document.getElementById('filter-container'));
+  const pool1HeatMap = tf.transpose(pool1.squeeze() as tf.Tensor2D);
+  tfvis.render.heatmap(document.getElementById('pool-1') as HTMLElement, {values: pool1HeatMap}, {height: 250, width: 300});
 
   const conv2dT1 = tf.conv2dTranspose(pool1 as tf.Tensor3D, filter2, [224, 224, 3], 2, 'same');
   showImage(conv2dT1.toInt().clipByValue(0, 255) as tf.Tensor3D, document.getElementById('transpose-container'));
