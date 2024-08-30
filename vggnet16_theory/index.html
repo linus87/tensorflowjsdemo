@@ -1,0 +1,50 @@
+<html>
+  <head>
+
+  </head>
+  <body>
+    <h4>Original Image<hr/></h4>
+    <div id="original-image-div">
+      <img id="fromBlobImg" src="static/cat.jpeg" alt="Original Image" width="200px" height="200px" />
+      <canvas id="result" alt="Image after filtered">  </canvas>
+    </div>
+    <div style="display: flex;">
+      <div id="featuremap-1"></div>
+      <div id="featuremap-2"></div>
+      <div id="pool-1"></div>
+    </div>
+    <div style="display: flex;">
+      <div id="featuremap-2-1"></div>
+      <div id="featuremap-2-2"></div>
+      <div id="pool-2"></div>
+    </div>
+    <div style="display: flex;">
+      <div id="featuremap-3-1"></div>
+      <div id="featuremap-3-2"></div>
+      <div id="featuremap-3-3"></div>
+      <div id="pool-3"></div>
+    </div>
+    <div style="display: flex;">
+      <div id="featuremap-4-1"></div>
+      <div id="featuremap-4-2"></div>
+      <div id="featuremap-4-3"></div>
+      <div id="pool-4"></div>
+    </div>
+    <div style="display: flex;">
+      <div id="featuremap-5-1"></div>
+      <div id="featuremap-5-2"></div>
+      <div id="featuremap-5-3"></div>
+      <div id="pool-5"></div>
+    </div>
+    <div id="transpose-container" style="display: flex;">
+      <div id="transpose-1"></div>
+      <div id="transpose-1"></div>
+    </div>
+    <canvas id="image-canvas" width="300" height="300" style="display:none"></canvas>
+    
+    <div id="micro-out-div">
+      Open the browser devtools to see the output in the console.
+    </div>
+    <script src="src/index.ts"> </script>
+  </body>
+</html>
