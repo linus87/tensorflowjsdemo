@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transformer Attention Score Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .matrix { display: grid; grid-template-columns: repeat(6, 50px); gap: 5px; }
+        .matrix div { width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <div id="original-image-div">
+        <img id="fromBlobImg" src="static/cat.jpeg" alt="Original Image" width="200px" height="200px" />
+        <canvas id="result" alt="Image after filtered">  </canvas>
+        <canvas id="cropped" alt="Image after filtered">  </canvas>
+    </div>
+    <div id="sensed-image">
+
+    </div>
+
+    <h1>Transformer Attention Score Demo</h1>
+    <p>Calculate attention scores for the sentence: "The cat sat on the mat".</p>
+    <div class="matrix" id="attention-scores"></div>
+    <button onclick="calculateAttentionScores()">Calculate Attention Scores</button>
+
+    <script>
+        // Simplified input vectors for each word (e.g., using random values for demonstration)
+        const inputVectors = [
+            [1, 0, 1],
+            [0, 1, 0],
+            [1, 1, 0],
+            [0, 0, 1],
+            [1, 0, 0],
+            [0, 1, 1]
+        ];
+
+        // Function to calculate dot product
+        function dotProduct(vecA, vecB) {
+            return vecA.reduce((sum, a, i) => sum + a * vecB[i], 0);
+        }
+
+        // Softmax function to normalize scores
+        function softmax(scores) {
+            const maxScore = Math.max(...scores);
+            const exps = scores.map(score => Math.exp(score - maxScore));
+            const sumExps = exps.reduce((sum, exp) => sum + exp, 0);
+            return exps.map(exp => exp / sumExps);
+        }
+
+        function calculateAttentionScores() {
+            const matrix = document.getElementById('attention-scores');
+            matrix.innerHTML = '';
+
+            // For simplicity, use input vectors as both query and key vectors
+            const attentionMatrix = inputVectors.map(queryVec =>
+                inputVectors.map(keyVec => dotProduct(queryVec, keyVec))
+            );
+
+            // Apply softmax to each row of the attention matrix
+            const normalizedAttentionMatrix = attentionMatrix.map(softmax);
+
+            // Display the attention scores
+            normalizedAttentionMatrix.forEach(row => {
+                row.forEach(score => {
+                    const cell = document.createElement('div');
+                    cell.textContent = score.toFixed(2);
+                    matrix.appendChild(cell);
+                });
+            });
+        }
+    </script>
+
+    <script src="src/index.ts" type="module"> </script>
+</body>
+</html>

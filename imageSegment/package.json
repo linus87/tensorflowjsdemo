@@ -1,0 +1,28 @@
+{
+  "name": "tfjsdemo-transformer",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "license": "Apache-2.0",
+  "private": true,
+  "engines": {
+    "node": ">=8.9.0"
+  },
+  "scripts": {
+    "watch": "cross-env NODE_ENV=development parcel image.html ",
+    "build": "cross-env NODE_ENV=production parcel build index.html --public-url ./"
+  },
+  "dependencies": {
+    "@tensorflow/tfjs": "^4.22.0"
+  },
+  "devDependencies": {
+    "buffer": "^5.5.0||^6.0.0",
+    "cross-env": "^5.2.0",
+    "parcel": "^2.13.3",
+    "parcel-plugin-static-files-copy": "^2.5.1",
+    "typescript": "^5.2.2"
+  },
+  "resolutions": {
+    "follow-redirects": "1.14.8"
+  }
+}
